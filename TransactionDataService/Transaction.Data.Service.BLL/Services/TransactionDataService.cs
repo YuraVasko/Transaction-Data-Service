@@ -15,6 +15,11 @@ namespace Transaction.Data.Service.BLL.Services
             _transactionDataRepository = transactionDataRepository;
         }
 
+        public async Task AddRangeAsync(IEnumerable<TransactionData> transactionData)
+        {
+             await _transactionDataRepository.InsertRangeAsync(transactionData);
+        }
+
         public async Task<IReadOnlyCollection<TransactionData>> GetAllAsync()
         {
             return await _transactionDataRepository.GetTransactionDataAsync();

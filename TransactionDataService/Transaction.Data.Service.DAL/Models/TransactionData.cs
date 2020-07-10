@@ -6,7 +6,7 @@ namespace Transaction.Data.Service.DAL.Models
     {
         public string Id { get; set; }
 
-        public decimal Amount { get; set; }
+        public double Amount { get; set; }
 
         public string CurrencyCode { get; set; }
 

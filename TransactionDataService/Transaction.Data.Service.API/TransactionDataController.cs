@@ -1,5 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System.Text;
 using System.Threading.Tasks;
+using Transaction.Data.Service.API.Models;
 using Transaction.Data.Service.BLL.Interfaces;
 
 namespace Transaction.Data.Service.API
@@ -9,16 +13,20 @@ namespace Transaction.Data.Service.API
     public class TransactionDataController : ControllerBase
     {
         private readonly ITransactionDataService _transactionDataService;
+        private readonly ILogger<TransactionDataController> _logger;
 
-        public TransactionDataController(ITransactionDataService transactionDataService)
+        public TransactionDataController(
+            ITransactionDataService transactionDataService,
+            ILogger<TransactionDataController> logger)
         {
             _transactionDataService = transactionDataService;
+            _logger = logger;
         }
 
         [HttpPost]
-        public async Task<ActionResult> UploadTransactionData()
+        public async Task<ActionResult> UploadTransactionDataCustomBinder(UploadTransactionDataRequest request)
         {
-            var files = Request.Form.Files;
+            await _transactionDataService.AddRangeAsync(request.TransactionData);
             return Ok();
         }
 
