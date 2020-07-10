@@ -4,4 +4,8 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Transaction.Data.Service.DAL\Transaction.Data.Service.DAL.csproj" />
+  </ItemGroup>
+
 </Project>
