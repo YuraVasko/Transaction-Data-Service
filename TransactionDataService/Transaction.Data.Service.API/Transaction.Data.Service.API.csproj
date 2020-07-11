@@ -9,5 +9,6 @@
 	
 	<ItemGroup>
 	  <ProjectReference Include="..\Transaction.Data.Service.BLL\Transaction.Data.Service.BLL.csproj" />
+	  <ProjectReference Include="..\Transaction.Data.Service.DTO\Transaction.Data.Service.DTO.csproj" />
 	</ItemGroup>
 </Project>

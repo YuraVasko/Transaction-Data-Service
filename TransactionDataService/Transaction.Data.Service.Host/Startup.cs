@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Transaction.Data.Service.BLL;
 using Transaction.Data.Service.DAL;
 
 namespace Transaction.Data.Service.Host
@@ -22,6 +23,7 @@ namespace Transaction.Data.Service.Host
         {
             string connectionString = Configuration.GetConnectionString(ConnectionConfigPath);
             services.RegisterDataAccessLayer(connectionString);
+            services.RegisterBusinessLogicLayer();
             services.AddControllers();
         }
 
@@ -33,11 +35,8 @@ namespace Transaction.Data.Service.Host
             }
 
             app.UseHttpsRedirection();
-
             app.UseRouting();
-
             app.UseAuthorization();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

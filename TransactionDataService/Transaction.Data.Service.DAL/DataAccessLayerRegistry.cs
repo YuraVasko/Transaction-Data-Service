@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Transaction.Data.Service.DAL.Interfaces;
 using Transaction.Data.Service.DAL.Repositories;
+using Transaction.Data.Service.DAL.Repositories.Interfaces;
 
 namespace Transaction.Data.Service.DAL
 {
@@ -12,7 +12,7 @@ namespace Transaction.Data.Service.DAL
             string connectionString)
         {
             services.AddDbContext<TransactionDataServiceDbContext>(options => options.UseSqlServer(connectionString));
-            services.AddScoped<ITransactionDataRepository, TransactionDataRepository>();
+            services.AddScoped<ITransactionRepository, TransactionRepository>();
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Transaction.Data.Service.DAL.Models
 {
-    public class TransactionData
+    public class Transaction
     {
         public string Id { get; set; }
 
@@ -12,6 +12,6 @@ namespace Transaction.Data.Service.DAL.Models
 
         public DateTime TransactionDate { get; set; }
 
-        public TransactionDataStatus Status { get; set; }
+        public TransactionStatus Status { get; set; }
     }
 }
