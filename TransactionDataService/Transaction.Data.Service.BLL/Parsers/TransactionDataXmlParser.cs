@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Text;
 using System.Xml.Serialization;
 using Transaction.Data.Service.BLL.Parsers.Interfaces;
 using Transaction.Data.Service.DTO;

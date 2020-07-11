@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Transaction.Data.Service.API.Models;
 using Transaction.Data.Service.BLL.Services.Interfaces;
+using TransactionModel = Transaction.Data.Service.DAL.Models.Transaction;
 
 namespace Transaction.Data.Service.API
 {
@@ -11,28 +14,54 @@ namespace Transaction.Data.Service.API
     public class TransactionController : ControllerBase
     {
         private readonly ITransactionService _transactionService;
-        private readonly ILogger<TransactionController> _logger;
+        private readonly IMapper _mapper;
 
         public TransactionController(
             ITransactionService transactionDataService,
-            ILogger<TransactionController> logger)
+            IMapper mapper)
         {
             _transactionService = transactionDataService;
-            _logger = logger;
+            _mapper = mapper;
         }
 
         [HttpPost]
         public async Task<ActionResult> UploadTransactionDataCustomBinder(UploadTransactionDataRequest request)
         {
-            await _transactionService.AddRangeAsync(request.TransactionData.Transactions);
+            var transactions = _mapper.Map<IEnumerable<TransactionModel>>(request.TransactionData.Transactions);
+            await _transactionService.AddTransactionsAsync(transactions);
             return Ok();
         }
 
         [HttpGet]
         public async Task<ActionResult> GetTransactionData()
         {
-            var transactionData = await _transactionService.GetAllAsync();
-            return Ok(transactionData);
+            var transactions = await _transactionService.GetAllAsync();
+            var result = _mapper.Map<IReadOnlyCollection<TransactionDetailsResponse>>(transactions);
+            return Ok(result);
+        }
+
+        [HttpGet("by/currency/{currency}")]
+        public async Task<ActionResult> GetTransactionDataByCurrency(string currency)
+        {
+            var transactions = await _transactionService.GetTransactionsByCurrencyAsync(currency);
+            var result = _mapper.Map<IReadOnlyCollection<TransactionDetailsResponse>>(transactions);
+            return Ok(result);
+        }
+
+        [HttpGet("by/status/{status}")]
+        public async Task<ActionResult> GetTransactionDataByStatus(string status)
+        {
+            var transactions = await _transactionService.GetTransactionsByStatusAsync(status);
+            var result = _mapper.Map<IReadOnlyCollection<TransactionDetailsResponse>>(transactions);
+            return Ok(result);
+        }
+
+        [HttpGet("by/date/{from}/{to}")]
+        public async Task<ActionResult> GetTransactionDataByDateRannge(DateTime from, DateTime to)
+        {
+            var transactions = await _transactionService.GetTransactionsByDateRangeAsync(from, to);
+            var result = _mapper.Map<IReadOnlyCollection<TransactionDetailsResponse>>(transactions);
+            return Ok(result);
         }
     }
 }

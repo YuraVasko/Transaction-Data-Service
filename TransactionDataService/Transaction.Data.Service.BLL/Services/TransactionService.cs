@@ -3,8 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Transaction.Data.Service.BLL.Mappers;
 using Transaction.Data.Service.BLL.Services.Interfaces;
+using Transaction.Data.Service.DAL.Models;
 using Transaction.Data.Service.DAL.Repositories.Interfaces;
 using Transaction.Data.Service.DTO;
 using TransactionModel = Transaction.Data.Service.DAL.Models.Transaction;
@@ -15,29 +15,26 @@ namespace Transaction.Data.Service.BLL.Services
     {
         private readonly ITransactionRepository _transactionRepository;
         private readonly ILogger<TransactionService> _logger;
-        private readonly IMapper<TransactionDto, TransactionModel> _transactionMapper;
 
         public TransactionService(
             ITransactionRepository transactionDataRepository,
-            ILogger<TransactionService> logger,
-            IMapper<TransactionDto, TransactionModel> transactionMapper)
+            ILogger<TransactionService> logger)
         {
             _transactionRepository = transactionDataRepository;
             _logger = logger;
-            _transactionMapper = transactionMapper;
         }
 
-        public async Task AddRangeAsync(IEnumerable<TransactionDto> transactionData)
+        public async Task AddTransactionsAsync(IEnumerable<TransactionModel> transactions)
         {
-            if (transactionData == null)
+            if (transactions == null)
             {
-                throw new ArgumentNullException(nameof(transactionData));
+                throw new ArgumentNullException(nameof(transactions));
             }
 
             try
             {
                 _logger.LogInformation($"Try to save new transaction data");
-                var transactions = transactionData.Select(t => _transactionMapper.Map(t));
+
                 await _transactionRepository.InsertRangeAsync(transactions);
 
                 _logger.LogInformation($"New transaction data has been successfully saved");
@@ -51,7 +48,23 @@ namespace Transaction.Data.Service.BLL.Services
 
         public async Task<IReadOnlyCollection<TransactionModel>> GetAllAsync()
         {
-            return await _transactionRepository.GetTransactionDataAsync();
+            return await _transactionRepository.GetAllTransactionsAsync();
+        }
+
+        public async Task<IReadOnlyCollection<TransactionModel>> GetTransactionsByCurrencyAsync(string currency)
+        {
+            return await _transactionRepository.GetTransactionsByFilter(t => t.CurrencyCode == currency);
+        }
+
+        public async Task<IReadOnlyCollection<TransactionModel>> GetTransactionsByDateRangeAsync(DateTime from, DateTime to)
+        {
+            return await _transactionRepository.GetTransactionsByFilter(t => t.TransactionDate > from && t.TransactionDate < to);
+        }
+
+        public async Task<IReadOnlyCollection<TransactionModel>> GetTransactionsByStatusAsync(string status)
+        {
+            Enum.TryParse(status, out TransactionStatus transactionStatus);
+            return await _transactionRepository.GetTransactionsByFilter(t => t.Status == transactionStatus);
         }
     }
 }
