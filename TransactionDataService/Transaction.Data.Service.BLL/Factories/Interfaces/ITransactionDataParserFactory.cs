@@ -1,4 +1,6 @@
-﻿namespace Transaction.Data.Service.BLL.Interfaces
+﻿using Transaction.Data.Service.BLL.Parsers.Interfaces;
+
+namespace Transaction.Data.Service.BLL.Factories.Interfaces
 {
     public interface ITransactionDataParserFactory
     {

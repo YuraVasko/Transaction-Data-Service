@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
 using System.Text.RegularExpressions;
-using Transaction.Data.Service.BLL.Constants;
 using Transaction.Data.Service.BLL.Exceptions;
-using Transaction.Data.Service.BLL.Interfaces;
-using Transaction.Data.Service.DAL.Models;
+using Transaction.Data.Service.BLL.Parsers.Interfaces;
+using Transaction.Data.Service.DTO;
 
 namespace Transaction.Data.Service.BLL.Parsers
 {
@@ -16,82 +13,81 @@ namespace Transaction.Data.Service.BLL.Parsers
         private const string DataSplitter = "\", \"";
         private const string Coma = ",";
 
-        public IEnumerable<TransactionData> Parse(byte[] transactionDataBytes)
+        public TransactionDataDto Parse(string data)
         {
-            List<TransactionData> result = new List<TransactionData>();
-            string transactionDataString = Encoding.UTF8.GetString(transactionDataBytes);
-            var rows = transactionDataString.Split(RowSplitter);
-            
+            TransactionDataDto result = new TransactionDataDto();
+            var rows = data.Split(RowSplitter);
+
             foreach (var row in rows)
             {
-                var rowData = row.Split(DataSplitter);
-                TryPopulateTransactionData(rowData, out var transactionData);
-                
-                result.Add(transactionData ?? throw new InvalidTransactionDataException());
+                var transaction = ParseCsvRowToTransactionDto(row);
+
+                result.Transactions.Add(transaction);
             }
 
             return result;
         }
 
-        private bool TryPopulateTransactionData(string[] rowData, out TransactionData transactionData)
+        private TransactionDto ParseCsvRowToTransactionDto(string row)
         {
-            transactionData = null;
             try
             {
-                transactionData = new TransactionData()
+                var rowData = row.Split(DataSplitter);
+                return new TransactionDto()
                 {
-                    Id = GetTransactionDataId(rowData),
-                    Amount = GetTransactionDataAmount(rowData),
-                    CurrencyCode = GetTransactionDataCurrencyCode(rowData),
-                    Status = GetTransactionDataTransactionStatus(rowData),
-                    TransactionDate = GetTransactionDataTransactionDate(rowData)
-                };
-                return true;
+                    Id = GetTransactionId(rowData),
+                    Payment = GetPayment(rowData),
+                    TransactionDate = GetTransactionDate(rowData),
+                    Status = GetTransactionTransactionStatus(rowData),
+                }; ;
             }
             catch
             {
-                return false;
+                throw new InvalidTransactionDataException(row);
             }
         }
 
-        private string GetTransactionDataId(string[] rowData)
+        private PaymentDto GetPayment(string[] rowData)
+        {
+            return new PaymentDto
+            {
+                Amount = GetTransactionAmount(rowData),
+                CurrencyCode = GetTransactionCurrencyCode(rowData),
+            };
+        }
+
+        private string GetTransactionId(string[] rowData)
         {
             const int IdPossition = 0;
             string transactionId = Regex.Replace(rowData[IdPossition], "[^\\w\\d]", string.Empty);
             return transactionId;
         }
 
-        private double GetTransactionDataAmount(string[] rowData)
+        private decimal GetTransactionAmount(string[] rowData)
         {
             const int AmountPossition = 1;
             var cultureInfo = new CultureInfo("en-US");
             string decimalWithoutComa = rowData[AmountPossition].Replace(Coma, string.Empty);
-            return double.Parse(decimalWithoutComa, cultureInfo);
+            return decimal.Parse(decimalWithoutComa, cultureInfo);
         }
 
-        private string GetTransactionDataCurrencyCode(string[] rowData)
+        private string GetTransactionCurrencyCode(string[] rowData)
         {
             const int CurrencyCodePossition = 2;
             return rowData[CurrencyCodePossition];
         }
 
-        private DateTime GetTransactionDataTransactionDate(string[] rowData)
+        private DateTime GetTransactionDate(string[] rowData)
         {
             const int DatePossition = 3;
             return Convert.ToDateTime(rowData[DatePossition]);
         }
 
-        private TransactionDataStatus GetTransactionDataTransactionStatus(string[] rowData)
+        private string GetTransactionTransactionStatus(string[] rowData)
         {
             const int StatusPossition = 4;
             string transactionStatus = Regex.Replace(rowData[StatusPossition], "[^\\w\\d]", string.Empty);
-            switch (transactionStatus)
-            {
-                case TransactionCsvStatus.Approved: return TransactionDataStatus.A;
-                case TransactionCsvStatus.Failed: return TransactionDataStatus.R;
-                case TransactionCsvStatus.Finished: return TransactionDataStatus.D;
-                default: throw new InvalidTransactionStatusException(transactionStatus);
-            }
+            return transactionStatus;
         }
     }
 }

@@ -1,14 +1,19 @@
-﻿using System.Collections.Generic;
-using Transaction.Data.Service.BLL.Interfaces;
-using Transaction.Data.Service.DAL.Models;
+﻿using System.IO;
+using System.Text;
+using System.Xml.Serialization;
+using Transaction.Data.Service.BLL.Parsers.Interfaces;
+using Transaction.Data.Service.DTO;
 
 namespace Transaction.Data.Service.BLL.Parsers
 {
     class TransactionDataXmlParser : ITransactionDataParser
     {
-        public IEnumerable<TransactionData> Parse(byte[] data)
+        TransactionDataDto ITransactionDataParser.Parse(string data)
         {
-            throw new System.NotImplementedException();
+            XmlSerializer serializer = new XmlSerializer(typeof(TransactionDataDto));
+            using TextReader reader = new StringReader(data);
+            TransactionDataDto result = (TransactionDataDto)serializer.Deserialize(reader);
+            return result;
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 using Transaction.Data.Service.API.ModelBinders;
-using Transaction.Data.Service.DAL.Models;
+using Transaction.Data.Service.DTO;
 
 namespace Transaction.Data.Service.API.Models
 {
@@ -10,9 +9,9 @@ namespace Transaction.Data.Service.API.Models
     {
         public UploadTransactionDataRequest()
         {
-            TransactionData = new List<TransactionData>();
+            TransactionData = new TransactionDataDto();
         }
 
-        public List<TransactionData> TransactionData { get; set; }
+        public TransactionDataDto TransactionData { get; set; }
     }
 }
