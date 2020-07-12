@@ -43,8 +43,7 @@ namespace Transaction.Data.Service.BLL.Parsers
             }
             catch(Exception ex)
             {
-                Console.WriteLine(ex.Message);
-                throw new InvalidTransactionDataException(row);
+                throw new InvalidTransactionDataException(row, ex);
             }
         }
 
