@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Transaction.Data.Service.API;
 using Transaction.Data.Service.BLL;
 using Transaction.Data.Service.DAL;
+using Transaction.Data.Service.Host.Middleware;
 
 namespace Transaction.Data.Service.Host
 {
@@ -32,6 +33,7 @@ namespace Transaction.Data.Service.Host
 
             services.RegisterDataAccessLayer(connectionString);
             services.RegisterBusinessLogicLayer();
+            services.RegisterApiLayer();
             services.AddControllers();
         }
 
@@ -42,6 +44,7 @@ namespace Transaction.Data.Service.Host
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthorization();
