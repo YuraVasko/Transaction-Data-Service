@@ -41,8 +41,9 @@ namespace Transaction.Data.Service.BLL.Parsers
                     Status = GetTransactionTransactionStatus(rowData),
                 }; ;
             }
-            catch
+            catch(Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 throw new InvalidTransactionDataException(row);
             }
         }
@@ -80,7 +81,8 @@ namespace Transaction.Data.Service.BLL.Parsers
         private DateTime GetTransactionDate(string[] rowData)
         {
             const int DatePossition = 3;
-            return Convert.ToDateTime(rowData[DatePossition]);
+            DateTime date = DateTime.ParseExact(rowData[DatePossition], "dd/MM/yyyy hh:mm:ss", null);
+            return date;
         }
 
         private string GetTransactionTransactionStatus(string[] rowData)
