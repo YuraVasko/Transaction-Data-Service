@@ -8,3 +8,4 @@ It runs Transaction Data Service and MSSQL Server.
 
 # Testing 
 You could find xml and csv files for testing in TestingData folder.
+In the WebPage folder exists simple webpage (index.html), where you could upload transactions data and recieve it by filter.
