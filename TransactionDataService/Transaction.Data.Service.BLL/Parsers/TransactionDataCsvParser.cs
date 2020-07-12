@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using Transaction.Data.Service.BLL.Exceptions;
 using Transaction.Data.Service.BLL.Parsers.Interfaces;
 using Transaction.Data.Service.DTO;
 
@@ -30,65 +29,88 @@ namespace Transaction.Data.Service.BLL.Parsers
 
         private TransactionDto ParseCsvRowToTransactionDto(string row)
         {
-            try
-            {
-                var rowData = row.Split(DataSplitter);
-                return new TransactionDto()
-                {
-                    Id = GetTransactionId(rowData),
-                    Payment = GetPayment(rowData),
-                    TransactionDate = GetTransactionDate(rowData),
-                    Status = GetTransactionTransactionStatus(rowData),
-                }; ;
-            }
-            catch(Exception ex)
-            {
-                throw new InvalidTransactionDataException(row, ex);
-            }
+            var rowData = row.Split(DataSplitter);
+
+            var result = new TransactionDto();
+            TrySetTransactionId(rowData, result);
+            TrySetTransactionCurrencyCode(rowData, result);
+            TryParseTransactionAmount(rowData, result);
+            TrySetTransactionDate(rowData, result);
+            TrySetTransactionStatus(rowData, result);
+
+            return result;
         }
 
-        private PaymentDto GetPayment(string[] rowData)
-        {
-            return new PaymentDto
-            {
-                Amount = GetTransactionAmount(rowData),
-                CurrencyCode = GetTransactionCurrencyCode(rowData),
-            };
-        }
-
-        private string GetTransactionId(string[] rowData)
+        private bool TrySetTransactionId(string[] rowData, TransactionDto transaction)
         {
             const int IdPossition = 0;
-            string transactionId = Regex.Replace(rowData[IdPossition], "[^\\w\\d]", string.Empty);
-            return transactionId;
+            try
+            {
+                transaction.Id = Regex.Replace(rowData[IdPossition], "[^\\w\\d]", string.Empty);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
-        private decimal GetTransactionAmount(string[] rowData)
+        private bool TryParseTransactionAmount(string[] rowData, TransactionDto transaction)
         {
             const int AmountPossition = 1;
-            var cultureInfo = new CultureInfo("en-US");
-            string decimalWithoutComa = rowData[AmountPossition].Replace(Coma, string.Empty);
-            return decimal.Parse(decimalWithoutComa, cultureInfo);
+            try
+            {
+                string decimalWithoutComa = rowData[AmountPossition].Replace(Coma, string.Empty);
+                transaction.Payment.Amount = decimal.Parse(decimalWithoutComa, CultureInfo.InvariantCulture);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
-        private string GetTransactionCurrencyCode(string[] rowData)
+        private bool TrySetTransactionCurrencyCode(string[] rowData, TransactionDto transaction)
         {
             const int CurrencyCodePossition = 2;
-            return rowData[CurrencyCodePossition];
+            try
+            {
+                transaction.Payment.CurrencyCode = rowData[CurrencyCodePossition];
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
-        private DateTime GetTransactionDate(string[] rowData)
+        private bool TrySetTransactionDate(string[] rowData, TransactionDto transaction)
         {
             const int DatePossition = 3;
-            DateTime date = DateTime.ParseExact(rowData[DatePossition], "dd/MM/yyyy hh:mm:ss", null);
-            return date;
+            const string DateTimeFormat = "dd/MM/yyyy hh:mm:ss";
+            try
+            {
+                transaction.TransactionDate = DateTime.ParseExact(rowData[DatePossition], DateTimeFormat, null);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
-        private string GetTransactionTransactionStatus(string[] rowData)
+        private bool TrySetTransactionStatus(string[] rowData, TransactionDto transaction)
         {
             const int StatusPossition = 4;
-            string transactionStatus = Regex.Replace(rowData[StatusPossition], "[^\\w\\d]", string.Empty);
-            return transactionStatus;
+            try
+            {
+                transaction.Status = Regex.Replace(rowData[StatusPossition], "[^\\w\\d]", string.Empty);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }
