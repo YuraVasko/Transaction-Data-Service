@@ -2,7 +2,7 @@
 
 namespace Transaction.Data.Service.BLL.Exceptions
 {
-    public class InvalidFileTypeException : Exception
+    public class InvalidFileTypeException : TransactionBaseException
     {
         public InvalidFileTypeException()
             : base("Unknown format")

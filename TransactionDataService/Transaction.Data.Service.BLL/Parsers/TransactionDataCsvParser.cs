@@ -10,7 +10,6 @@ namespace Transaction.Data.Service.BLL.Parsers
     {
         private const string RowSplitter = "\r\n";
         private const string DataSplitter = "\", \"";
-        private const string Coma = ",";
 
         public TransactionDataDto Parse(string data)
         {
@@ -60,8 +59,8 @@ namespace Transaction.Data.Service.BLL.Parsers
             const int AmountPossition = 1;
             try
             {
-                string decimalWithoutComa = rowData[AmountPossition].Replace(Coma, string.Empty);
-                transaction.Payment.Amount = decimal.Parse(decimalWithoutComa, CultureInfo.InvariantCulture);
+                string decimalString = Regex.Replace(rowData[AmountPossition], "[^.\\d]", string.Empty);
+                transaction.Payment.Amount = decimal.Parse(decimalString, CultureInfo.InvariantCulture);
                 return true;
             }
             catch
@@ -75,7 +74,7 @@ namespace Transaction.Data.Service.BLL.Parsers
             const int CurrencyCodePossition = 2;
             try
             {
-                transaction.Payment.CurrencyCode = rowData[CurrencyCodePossition];
+                transaction.Payment.CurrencyCode = Regex.Replace(rowData[CurrencyCodePossition], "[^\\w]", string.Empty);
                 return true;
             }
             catch
@@ -90,6 +89,7 @@ namespace Transaction.Data.Service.BLL.Parsers
             const string DateTimeFormat = "dd/MM/yyyy hh:mm:ss";
             try
             {
+                string dateTimeString = Regex.Replace(rowData[DatePossition], "[^/:\\d\\s]", string.Empty);
                 transaction.TransactionDate = DateTime.ParseExact(rowData[DatePossition], DateTimeFormat, null);
                 return true;
             }
@@ -104,7 +104,7 @@ namespace Transaction.Data.Service.BLL.Parsers
             const int StatusPossition = 4;
             try
             {
-                transaction.Status = Regex.Replace(rowData[StatusPossition], "[^\\w\\d]", string.Empty);
+                transaction.Status = Regex.Replace(rowData[StatusPossition], "[^\\w]", string.Empty);
                 return true;
             }
             catch

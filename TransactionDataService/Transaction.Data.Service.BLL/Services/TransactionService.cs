@@ -31,19 +31,11 @@ namespace Transaction.Data.Service.BLL.Services
                 throw new ArgumentNullException(nameof(transactions));
             }
 
-            try
-            {
-                _logger.LogInformation($"Try to save new transaction data");
+            _logger.LogInformation($"Try to save new transaction data");
 
-                await _transactionRepository.InsertRangeAsync(transactions);
+            await _transactionRepository.InsertRangeAsync(transactions);
 
-                _logger.LogInformation($"New transaction data has been successfully saved");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogInformation($"Could not save transaction data due to {ex.Message}");
-                throw ex;
-            }
+            _logger.LogInformation($"New transaction data has been successfully saved");
         }
 
         public async Task<IReadOnlyCollection<TransactionModel>> GetAllAsync()
@@ -53,16 +45,34 @@ namespace Transaction.Data.Service.BLL.Services
 
         public async Task<IReadOnlyCollection<TransactionModel>> GetTransactionsByCurrencyAsync(string currency)
         {
+            if (string.IsNullOrEmpty(currency))
+            {
+                _logger.LogInformation($"Currency could not be null");
+                throw new ArgumentNullException(nameof(currency));
+            }
+
             return await _transactionRepository.GetTransactionsByFilter(t => t.CurrencyCode == currency);
         }
 
         public async Task<IReadOnlyCollection<TransactionModel>> GetTransactionsByDateRangeAsync(DateTime from, DateTime to)
         {
+            if (from > to)
+            {
+                _logger.LogInformation($"From date should be earlier than to date");
+                throw new ArgumentException();
+            }
+
             return await _transactionRepository.GetTransactionsByFilter(t => t.TransactionDate > from && t.TransactionDate < to);
         }
 
         public async Task<IReadOnlyCollection<TransactionModel>> GetTransactionsByStatusAsync(string status)
         {
+            if (string.IsNullOrEmpty(status))
+            {
+                _logger.LogInformation($"Status could not be null");
+                throw new ArgumentNullException(nameof(status));
+            }
+
             Enum.TryParse(status, out TransactionStatus transactionStatus);
             return await _transactionRepository.GetTransactionsByFilter(t => t.Status == transactionStatus);
         }

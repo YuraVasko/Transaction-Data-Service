@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Transaction.Data.Service.API.ModelBinders;
+using Transaction.Data.Service.API.Validators;
 using Transaction.Data.Service.DTO;
 
 namespace Transaction.Data.Service.API.Models
