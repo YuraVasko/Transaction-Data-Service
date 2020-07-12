@@ -34,6 +34,8 @@ namespace Transaction.Data.Service.Host
             services.RegisterDataAccessLayer(connectionString);
             services.RegisterBusinessLogicLayer();
             services.RegisterApiLayer();
+
+            services.AddCors();
             services.AddControllers();
         }
 
@@ -43,7 +45,7 @@ namespace Transaction.Data.Service.Host
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            app.UseCors(builder => builder.AllowAnyOrigin());
             app.UseMiddleware<ExceptionHandlingMiddleware>();
             app.UseHttpsRedirection();
             app.UseRouting();

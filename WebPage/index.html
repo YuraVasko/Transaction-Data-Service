@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script>
+            function GetByCurrency() {
+                let currency = document.getElementById("currency").value;
+                $.get('http://localhost:5005/api/transaction-data/by/currency/'+ currency, function(data, status){
+                    document.getElementById("transactionsByCurrency").innerHTML = ParseData(data);
+                });
+            }
+
+            function GetByDateRange() {
+                let dateFrom = document.getElementById("date_from").value;
+                let dateTo = document.getElementById("date_to").value;
+                $.get('http://localhost:5005/api/transaction-data/by/date/'+ dateFrom + '/' + dateTo, function(data, status){
+                    document.getElementById("transactionsByDateRange").innerHTML = ParseData(data);
+                });
+            }
+
+            function GetByStatus() {
+                let status = document.getElementById("status").value;
+                $.get('http://localhost:5005/api/transaction-data/by/status/'+ status, function(data, status){
+                    document.getElementById("transactionsByStatus").innerHTML = ParseData(data);
+                });
+            }
+
+            function ParseData(transactions) {
+                let resultText = "";
+                transactions.forEach(transaction =>
+                {
+                    resultText+= "Id: " + transaction.id + "; ";
+                    resultText+= "Payment: " + transaction.payment + "; ";
+                    resultText+= "Status: " + transaction.status + ";";
+                    resultText+= "<br>";
+                });
+                return resultText;
+            }
+        </script>
+    </head>
+    <body>
+        <h2>Upload Transaction data file</h2>
+        <form class="form" action="http://localhost:5005/api/transaction-data" method="post", enctype="multipart/form-data">
+                <input type="file" name="transactionsFile" id="transactionDataFile">
+                <br>
+                <br>
+                <button type="submit">Upload File</button>
+        </form>
+        
+        <hr>
+        <h2>Get Transactions by currency:</h2>
+        <h3>Currency:</h3>
+        <input type="text" name="currency" id="currency">
+        <br>
+        <button onclick="GetByCurrency()">GET</button>
+        <p id="transactionsByCurrency"></p>
+        
+        <hr>
+        <h2>Get Transactions by date range:</h2>
+        <h3>From:</h3>
+        <input type="text" name="date_from" id="date_from">
+        <h3>To:</h3>
+        <input type="text" name="date_to" id="date_to">
+        <br>
+        <button onclick="GetByDateRange()">GET</button>
+        <p id="transactionsByDateRange"></p>
+        
+        <hr>
+        <h2>Get Transactions by status(A,R,D):</h2>
+        <h3>Status:</h3>
+        <input type="text" name="status" id="status">
+        <br>
+        <button onclick="GetByStatus()">GET</button>
+        <p id="transactionsByStatus"></p>
+    </body>
+</html>
