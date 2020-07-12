@@ -1,0 +1,28 @@
+version: '3.4'
+
+services:
+  
+  sql2017:
+    container_name: ts-sql2017
+    image: mcr.microsoft.com/mssql/server
+    environment:
+        SA_PASSWORD: "!QAZ2wsx"
+        ACCEPT_EULA: "Y"
+    ports:
+      - 1433:1433
+  
+  transaction-data-service:
+    container_name: transaction-data-service
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Docker"
+    restart: on-failure
+    links: 
+      - sql2017
+    build:
+      context: .
+      target: transaction-data-service
+      dockerfile: TransactionDataService.Dockerfile
+    ports:
+      - 5005:80
+    depends_on: 
+      - sql2017
